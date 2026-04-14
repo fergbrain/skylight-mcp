@@ -206,14 +206,17 @@ Once configured, you can ask Claude things like:
 # Run in development mode (with hot reload)
 npm run dev
 
-# Build
-npm run build
+# Run tests in watch mode for TDD
+npm run test:watch
 
-# Run tests
-npm test
+# Run the full test suite once
+npm run test:run
 
 # Type check
 npm run typecheck
+
+# Full local verification
+npm run verify
 ```
 
 ## API Documentation
@@ -232,9 +235,10 @@ If you discover new API endpoints or find issues with the current documentation,
 Contributions are welcome! Here's how you can help:
 
 1. **Fork the repository** and create a feature branch
-2. **Make your changes** with clear, descriptive commits
-3. **Run tests** (`npm test`) and linting (`npm run lint`) before submitting
-4. **Open a pull request** with a description of your changes
+2. **Write or update a test first** for behavior changes and bug fixes
+3. **Make your changes** with clear, descriptive commits
+4. **Run verification** (`npm run verify`) before submitting
+5. **Open a pull request** with a description of your changes
 
 ### Development Setup
 
@@ -244,6 +248,8 @@ cd skylight-mcp
 npm install
 npm run dev  # Start with hot reload
 ```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the TDD workflow and upstream PR import notes.
 
 ### Areas for Contribution
 

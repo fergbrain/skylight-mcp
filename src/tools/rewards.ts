@@ -458,12 +458,11 @@ reward matching the exact balance, redeeming it, then deleting it.`,
       try {
         const points = await getRewardPoints();
 
-        // Build a map of category_id -> balance from point attributes
+        // Reward point balances are returned as a flat array, not JSON:API resources.
         const balanceMap = new Map<number, number>();
         for (const point of points) {
-          const attrs = point.attributes as Record<string, unknown>;
-          const catId = (attrs.category_id as number) ?? Number(point.id);
-          const balance = (attrs.current_point_balance as number) ?? 0;
+          const catId = point.category_id;
+          const balance = point.current_point_balance;
           if (balance > 0) {
             balanceMap.set(catId, balance);
           }
