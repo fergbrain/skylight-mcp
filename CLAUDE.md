@@ -140,8 +140,10 @@ State of [TheEagleByte/skylight-mcp](https://github.com/TheEagleByte/skylight-mc
 
 **Deliberately NOT merged wholesale: PR #41** ("OAuth refresh + token persistence"). Its premise — email/password "can't work, endpoint is gone" — is false here: email/password works via browser OAuth replay (NOT the dead `/api/sessions`). Merging it would force a UX regression (manual DevTools token capture). Only its token-persistence layer was cherry-picked (see Authentication → Token Persistence).
 
+**Fixed in this fork (not covered by any upstream PR)**:
+- `delete_chore` "Unexpected end of JSON input" (fork issue #3, from the upstream issue #25 comment): `client.ts request()` now reads the body as text and returns `{}` for an empty 2xx body instead of always calling `response.json()`. Affects any endpoint with an empty response, not just DELETE.
+
 **Open bugs worth fixing, not covered by any PR**:
-- `delete_chore` "Unexpected end of JSON input" (comment on upstream issue #25): `client.ts request()` does `return response.json()`, which throws on Skylight's empty 200 bodies for DELETE. Only 304 is handled.
 - Upstream issue #38: `get_calendar_events` only returns `invited_emails` (blank for internal Skylight profiles) and never surfaces `category_ids`, so family-member assignments are invisible.
 
 **Not actionable**: upstream issues #2–#19 are the original maintainer's "Investigate X" research backlog, not user-facing bugs.

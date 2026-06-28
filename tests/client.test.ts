@@ -90,6 +90,33 @@ describe("SkylightClient token persistence", () => {
     expect(refreshCalls).toHaveLength(1);
   });
 
+  it("resolves an empty 200 body instead of throwing (e.g. DELETE)", async () => {
+    // Seed a still-valid access token so the request needs no refresh/login.
+    writeStateFileAtomic(statePath, {
+      schemaVersion: 1,
+      email: config.email,
+      accessToken: "good-access",
+      refreshToken: "r1",
+      accessExpiresAt: Date.now() + 3_600_000,
+      rotatedAt: Date.now(),
+    });
+
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url.startsWith(`${BASE}/api/frames/frame-1/chores`)) {
+        // Skylight returns 200 with no content for DELETE.
+        return new Response("", { status: 200 });
+      }
+      throw new Error(`Unexpected fetch call: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const client = new SkylightClient(config);
+    await expect(
+      client.request("/api/frames/{frameId}/chores/chore-1", { method: "DELETE" })
+    ).resolves.toEqual({});
+  });
+
   it("ignores persisted tokens that belong to a different account", async () => {
     writeStateFileAtomic(statePath, {
       schemaVersion: 1,
