@@ -2,6 +2,8 @@
 
 An MCP (Model Context Protocol) server for the Skylight Calendar API. Enables AI assistants like Claude to interact with your Skylight family calendar, chores, lists, and more.
 
+> **Fork notice:** This is a maintained fork of [TheEagleByte/skylight-mcp](https://github.com/TheEagleByte/skylight-mcp), published to npm as [`@fergbrain/skylight-mcp`](https://www.npmjs.com/package/@fergbrain/skylight-mcp). It carries the updated OAuth login (the upstream `1.1.x` releases are broken against Skylight's current API), several merged community fixes, and on-disk token persistence.
+
 ## Features
 
 - **Calendar**: Query calendar events ("What's on my calendar today?")
@@ -23,7 +25,7 @@ An MCP (Model Context Protocol) server for the Skylight Calendar API. Enables AI
   "mcpServers": {
     "skylight": {
       "command": "npx",
-      "args": ["@eaglebyte/skylight-mcp"],
+      "args": ["@fergbrain/skylight-mcp"],
       "env": {
         "SKYLIGHT_EMAIL": "your_email@example.com",
         "SKYLIGHT_PASSWORD": "your_password",
@@ -36,7 +38,7 @@ An MCP (Model Context Protocol) server for the Skylight Calendar API. Enables AI
 
 **Claude Code:**
 ```bash
-claude mcp add skylight npx @eaglebyte/skylight-mcp \
+claude mcp add skylight npx @fergbrain/skylight-mcp \
   -e SKYLIGHT_EMAIL=your_email@example.com \
   -e SKYLIGHT_PASSWORD=your_password \
   -e SKYLIGHT_FRAME_ID=your_frame_id
@@ -45,7 +47,7 @@ claude mcp add skylight npx @eaglebyte/skylight-mcp \
 #### Option 2: From source
 
 ```bash
-git clone https://github.com/TheEagleByte/skylight-mcp.git
+git clone https://github.com/fergbrain/skylight-mcp.git
 cd skylight-mcp && npm install && npm run build
 ```
 
@@ -127,12 +129,28 @@ You still need to find your frame ID (the household identifier):
 | `SKYLIGHT_AUTH_TYPE` | No | `bearer` (default) or `basic` (for manual token) |
 | `SKYLIGHT_FRAME_ID` | Yes | Your household frame ID |
 | `SKYLIGHT_TIMEZONE` | No | Default timezone (default: `America/New_York`) |
+| `SKYLIGHT_STATE_FILE` | No | Override path for the persisted token cache (see below) |
 
 ### Auth Notes
 
 - Email/password auth no longer uses the legacy `/api/sessions` token flow.
 - The server now reproduces the Skylight web login flow and exchanges the resulting authorization code for a bearer token.
 - Manual token auth still works if you prefer to provide a captured token directly.
+
+### Token Persistence
+
+After the first email/password login, the server caches the OAuth access and
+refresh tokens on disk so subsequent restarts **refresh** instead of replaying
+the full browser login. Skylight rotates refresh tokens on every use, so each
+rotated token is written back atomically.
+
+- Default location: `~/Library/Application Support/skylight-mcp/state.json` (macOS),
+  `%APPDATA%\skylight-mcp\state.json` (Windows),
+  `$XDG_DATA_HOME/skylight-mcp/state.json` (Linux, default `~/.local/share/...`).
+- Override the path with `SKYLIGHT_STATE_FILE`.
+- The cache is keyed to your account email; tokens from a different account are
+  ignored. Delete the file to force a fresh login. Manual `SKYLIGHT_TOKEN` auth
+  does not use the cache.
 
 ### Example .env file:
 
@@ -243,7 +261,7 @@ Contributions are welcome! Here's how you can help:
 ### Development Setup
 
 ```bash
-git clone https://github.com/TheEagleByte/skylight-mcp.git
+git clone https://github.com/fergbrain/skylight-mcp.git
 cd skylight-mcp
 npm install
 npm run dev  # Start with hot reload
@@ -260,9 +278,9 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for the TDD workflow and upstream PR im
 
 ## Issues & Support
 
-- **Bug reports**: [Open an issue](https://github.com/TheEagleByte/skylight-mcp/issues/new) with steps to reproduce
-- **Feature requests**: [Open an issue](https://github.com/TheEagleByte/skylight-mcp/issues/new) describing the use case
-- **Questions**: [Start a discussion](https://github.com/TheEagleByte/skylight-mcp/discussions) or open an issue
+- **Bug reports**: [Open an issue](https://github.com/fergbrain/skylight-mcp/issues/new) with steps to reproduce
+- **Feature requests**: [Open an issue](https://github.com/fergbrain/skylight-mcp/issues/new) describing the use case
+- **Questions**: [Start a discussion](https://github.com/fergbrain/skylight-mcp/discussions) or open an issue
 
 Please include relevant details like your Node.js version, error messages, and configuration (with sensitive values redacted).
 

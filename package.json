@@ -1,7 +1,7 @@
 {
-  "name": "@eaglebyte/skylight-mcp",
-  "version": "1.1.8",
-  "description": "MCP server for Skylight Calendar API - enables agentic interactions for calendar, chores, lists, and family management",
+  "name": "@fergbrain/skylight-mcp",
+  "version": "1.2.0",
+  "description": "MCP server for Skylight Calendar API - enables agentic interactions for calendar, chores, lists, and family management. Fork of @eaglebyte/skylight-mcp.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {
@@ -36,11 +36,15 @@
     "family",
     "chores"
   ],
-  "author": "",
+  "author": "Andrew Ferguson",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheEagleByte/skylight-mcp.git"
+    "url": "https://github.com/fergbrain/skylight-mcp.git"
+  },
+  "homepage": "https://github.com/fergbrain/skylight-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/fergbrain/skylight-mcp/issues"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.11.0",

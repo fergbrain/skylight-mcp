@@ -25,6 +25,10 @@ export interface OAuthTokenResponse {
 export interface AuthResult {
   email: string;
   token: string;
+  /** OAuth refresh token, when the server returns one. Rotated on each refresh. */
+  refreshToken?: string;
+  /** Access-token lifetime in seconds, when the server reports it. */
+  expiresIn?: number;
   subscriptionStatus: string | null;
 }
 
@@ -304,7 +308,13 @@ async function authorizeAuthenticatedSession(authorizeUrl: string, cookieJar: Co
   return location;
 }
 
-async function exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<string> {
+interface TokenSet {
+  token: string;
+  refreshToken?: string;
+  expiresIn?: number;
+}
+
+async function exchangeAuthorizationCode(code: string, codeVerifier: string): Promise<TokenSet> {
   const tokenBody = new URLSearchParams({
     grant_type: "authorization_code",
     client_id: CLIENT_ID,
@@ -338,7 +348,7 @@ async function exchangeAuthorizationCode(code: string, codeVerifier: string): Pr
     throw new Error("OAuth token exchange did not return an access token");
   }
 
-  return token;
+  return { token, refreshToken: data.refresh_token, expiresIn: data.expires_in };
 }
 
 async function detectSubscriptionStatus(token: string): Promise<string | null> {
@@ -403,7 +413,7 @@ export async function login(email: string, password: string): Promise<AuthResult
   const authorizeUrl = await submitLoginForm(email, password, authenticityToken, cookieJar);
   const callbackLocation = await authorizeAuthenticatedSession(authorizeUrl, cookieJar);
   const authorizationCode = parseAuthorizationCode(callbackLocation, state);
-  const token = await exchangeAuthorizationCode(authorizationCode, codeVerifier);
+  const { token, refreshToken, expiresIn } = await exchangeAuthorizationCode(authorizationCode, codeVerifier);
   const subscriptionStatus = await detectSubscriptionStatus(token);
 
   console.error("[auth] OAuth login successful.");
@@ -411,6 +421,64 @@ export async function login(email: string, password: string): Promise<AuthResult
   return {
     email,
     token,
+    refreshToken,
+    expiresIn,
+    subscriptionStatus,
+  };
+}
+
+/**
+ * Exchange a refresh token for a fresh access token (OAuth refresh-token grant).
+ *
+ * Skylight rotates refresh tokens on every refresh, so callers must persist the
+ * returned `refreshToken` for the next refresh. Throws if the grant fails (e.g.
+ * the refresh token was invalidated), which signals the caller to fall back to a
+ * full email/password login.
+ */
+export async function refreshAccessToken(refreshToken: string): Promise<AuthResult> {
+  console.error("[auth] Refreshing access token.");
+
+  const tokenBody = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: CLIENT_ID,
+    scope: SCOPE,
+    refresh_token: refreshToken,
+    ...getDeviceMetadata(),
+  });
+
+  const response = await fetch(`${SKYLIGHT_BASE_URL}/oauth/token`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json, text/javascript; q=0.01",
+      "Content-Type": "application/x-www-form-urlencoded",
+      Origin: SKYLIGHT_WEB_APP_URL,
+      Referer: `${SKYLIGHT_WEB_APP_URL}/`,
+      "User-Agent": WEB_USER_AGENT,
+    },
+    body: tokenBody,
+  });
+
+  if (!response.ok) {
+    const errorBody = await response.text();
+    throw new Error(`OAuth token refresh failed: HTTP ${response.status}${errorBody ? ` - ${errorBody.slice(0, 200)}` : ""}`);
+  }
+
+  const data = (await response.json()) as OAuthTokenResponse;
+  const token = data.access_token ?? data.token;
+  if (!token) {
+    throw new Error("OAuth token refresh did not return an access token");
+  }
+
+  const subscriptionStatus = await detectSubscriptionStatus(token);
+
+  return {
+    // Email is unknown from a refresh grant; the client tracks it separately.
+    email: "",
+    token,
+    // Honor refresh-token rotation, falling back to the supplied token if the
+    // server didn't issue a new one.
+    refreshToken: data.refresh_token ?? refreshToken,
+    expiresIn: data.expires_in,
     subscriptionStatus,
   };
 }

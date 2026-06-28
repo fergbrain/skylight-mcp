@@ -28,7 +28,7 @@ export async function createServer(): Promise<{
 
   const server = new McpServer({
     name: "skylight",
-    version: "1.0.0",
+    version: "1.2.0",
   });
 
   // Register base tools (always available)

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-06-27
+
+First release of the fork, published to npm as `@fergbrain/skylight-mcp`. The
+upstream `@eaglebyte/skylight-mcp` `1.1.x` releases are broken against Skylight's
+current API; this release ships the working OAuth login plus accumulated fixes.
+
+### Added
+
+- **Token persistence**: After the first email/password login, OAuth access and refresh tokens are cached on disk (platform user-data dir, override via `SKYLIGHT_STATE_FILE`). Subsequent restarts refresh the token instead of replaying the full browser login, and rotated refresh tokens are written back atomically. The cache is keyed to the account email. Adapted from upstream PR #41, retaining the email/password flow.
+- `reset_reward_points` and `add_reward_points` tools (upstream PRs #34, #36).
+- Calendar sync parameters (`calendarId`, `calendarAccountId`, `timezone`, `rrule`, etc.) on `create_calendar_event`/`update_calendar_event` (upstream PR #23).
+
+### Fixed
+
+- Imported community fixes for chore/reward API request formats, missing chore IDs in output, recurring-chore series updates, and list-item creation (upstream PRs #23, #30, #31, #32, #33, #35, #36).
+
+### Changed
+
+- Renamed package to `@fergbrain/skylight-mcp` and pointed repository/homepage/issue links at the fork. Retains the original MIT license and EagleByte copyright.
+
 ## [1.1.8] - 2026-04-14
 
 ### Fixed

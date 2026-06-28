@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { login } from "../src/api/auth.js";
+import { login, refreshAccessToken } from "../src/api/auth.js";
 
 function textResponse(status: number, body: string, headers: HeadersInit = {}): Response {
   return new Response(body, {
@@ -139,5 +139,80 @@ describe("auth", () => {
     await expect(login("user@example.com", "wrong-password")).rejects.toThrow(
       "Invalid email or password"
     );
+  });
+});
+
+describe("refreshAccessToken", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    vi.restoreAllMocks();
+  });
+
+  it("exchanges a refresh token and returns rotated tokens", async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request, init?: RequestInit) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+
+      if (url === "https://app.ourskylight.com/oauth/token") {
+        const body = init?.body instanceof URLSearchParams ? init.body : new URLSearchParams(String(init?.body ?? ""));
+        expect(body.get("grant_type")).toBe("refresh_token");
+        expect(body.get("client_id")).toBe("skylight-mobile");
+        expect(body.get("refresh_token")).toBe("old-refresh");
+        return jsonResponse(200, {
+          access_token: "new-access",
+          refresh_token: "new-refresh",
+          expires_in: 7200,
+          token_type: "Bearer",
+        });
+      }
+
+      if (url === "https://app.ourskylight.com/api/plus_access") {
+        return textResponse(200, "");
+      }
+
+      throw new Error(`Unexpected fetch call: ${url}`);
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await refreshAccessToken("old-refresh");
+
+    expect(result).toMatchObject({
+      token: "new-access",
+      refreshToken: "new-refresh",
+      expiresIn: 7200,
+      subscriptionStatus: "plus",
+    });
+  });
+
+  it("keeps the supplied refresh token when the server omits a rotated one", async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url === "https://app.ourskylight.com/oauth/token") {
+        return jsonResponse(200, { access_token: "new-access", token_type: "Bearer" });
+      }
+      if (url === "https://app.ourskylight.com/api/plus_access") {
+        return textResponse(200, "");
+      }
+      throw new Error(`Unexpected fetch call: ${url}`);
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    const result = await refreshAccessToken("keep-me");
+    expect(result.refreshToken).toBe("keep-me");
+  });
+
+  it("throws when the refresh grant is rejected", async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
+      if (url === "https://app.ourskylight.com/oauth/token") {
+        return textResponse(400, '{"error":"invalid_grant"}');
+      }
+      throw new Error(`Unexpected fetch call: ${url}`);
+    });
+
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(refreshAccessToken("dead-token")).rejects.toThrow("OAuth token refresh failed");
   });
 });
