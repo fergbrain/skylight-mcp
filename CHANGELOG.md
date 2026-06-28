@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Documentation accuracy sweep: corrected tool count (42) and tool tables in `README.md`/`CLAUDE.md`, documented the fork status and 1.x backward-compatibility policy, token persistence and `SKYLIGHT_STATE_FILE`, the release-to-npm process, and upstream-maintenance triage. `AGENTS.md` now points to `CLAUDE.md` to avoid duplicate drift. Added `SKYLIGHT_STATE_FILE` to `.env.example`.
+- Refreshed `src/api/generated-types.ts` from the current OpenAPI spec (reference-only; not imported by the code). Example values are now stripped from the generated types, and `generate:types` runs `scripts/scrub-generated-types.mjs` to keep the output free of concrete sample data.
 
 ## [1.2.0] - 2026-06-27
 

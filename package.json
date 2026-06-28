@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run lint && npm run typecheck && npm run test:run && npm run build",
     "prepare": "npm run build",
-    "generate:types": "openapi-typescript ../skylight-api/docs/openapi/openapi.yaml -o src/api/generated-types.ts"
+    "generate:types": "openapi-typescript ../skylight-api/docs/openapi/openapi.yaml -o src/api/generated-types.ts && node scripts/scrub-generated-types.mjs src/api/generated-types.ts"
   },
   "keywords": [
     "mcp",
