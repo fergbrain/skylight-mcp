@@ -83,7 +83,7 @@ Copy this into your AI's custom instructions or system prompt:
 ## Prerequisites
 
 - Node.js 18+
-- A Skylight account with an active subscription
+- A Skylight account (the base calendar/chores/lists/tasks tools work on any account; a **Skylight Plus** subscription unlocks the rewards, meals, and photos tools)
 - Your Skylight Frame ID (see [Finding your Frame ID](#finding-your-frame-id))
 
 ## Authentication
@@ -164,34 +164,49 @@ SKYLIGHT_TIMEZONE=America/New_York
 
 ## Available Tools
 
-### Calendar Tools
+42 tools total — 23 base (always available) and 19 that require Skylight Plus.
+
+### Base Tools
+
+**Calendar**
 
 | Tool | Description |
 |------|-------------|
 | `get_calendar_events` | Get calendar events for a date range |
 | `get_source_calendars` | List connected calendar sources (Google, iCloud, etc.) |
+| `create_calendar_event` | Create an event (supports calendar sync parameters) |
+| `update_calendar_event` | Update an existing event |
+| `delete_calendar_event` | Delete an event |
 
-### Chore Tools
+**Chores**
 
 | Tool | Description |
 |------|-------------|
 | `get_chores` | Get chores with optional filters (date, assignee, status) |
 | `create_chore` | Create a new chore with optional recurrence |
+| `update_chore` | Update a chore (optionally the whole recurring series) |
+| `delete_chore` | Delete a chore (optionally the recurring series) |
 
-### List Tools
+**Lists**
 
 | Tool | Description |
 |------|-------------|
 | `get_lists` | Get all available lists |
 | `get_list_items` | Get items from a specific list |
+| `create_list` | Create a new list |
+| `update_list` | Update a list |
+| `delete_list` | Delete a list |
+| `create_list_item` | Add an item to a list |
+| `update_list_item` | Update a list item |
+| `delete_list_item` | Delete a list item |
 
-### Task Tools
+**Tasks**
 
 | Tool | Description |
 |------|-------------|
 | `create_task` | Add a task to the task box |
 
-### Family Tools
+**Family**
 
 | Tool | Description |
 |------|-------------|
@@ -199,12 +214,50 @@ SKYLIGHT_TIMEZONE=America/New_York
 | `get_frame_info` | Get household/frame information |
 | `get_devices` | List Skylight devices |
 
-### Reward Tools
+**Misc**
+
+| Tool | Description |
+|------|-------------|
+| `get_avatars` | List available avatars |
+| `get_colors` | List available colors |
+
+### Plus-Only Tools
+
+Require an active Skylight Plus subscription; not registered for non-Plus accounts.
+
+**Rewards**
 
 | Tool | Description |
 |------|-------------|
 | `get_rewards` | Get available rewards |
 | `get_reward_points` | Get reward points balance |
+| `create_reward` | Create a reward |
+| `update_reward` | Update a reward |
+| `delete_reward` | Delete a reward |
+| `redeem_reward` | Redeem a reward for a family member |
+| `unredeem_reward` | Reverse a reward redemption |
+| `add_reward_points` | Add or subtract points for a family member |
+| `reset_reward_points` | Reset a family member's point balance to zero |
+
+**Meals**
+
+| Tool | Description |
+|------|-------------|
+| `get_meal_categories` | List meal/recipe categories |
+| `get_recipes` | List recipes |
+| `get_recipe` | Get a single recipe |
+| `create_recipe` | Create a recipe |
+| `update_recipe` | Update a recipe |
+| `delete_recipe` | Delete a recipe |
+| `add_recipe_to_grocery_list` | Add a recipe's ingredients to a grocery list |
+| `get_meal_sittings` | List planned meal sittings |
+| `create_meal_sitting` | Plan a meal sitting |
+
+**Photos**
+
+| Tool | Description |
+|------|-------------|
+| `get_albums` | List photo albums |
 
 ## Example Queries
 

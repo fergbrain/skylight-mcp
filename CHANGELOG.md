@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Documentation accuracy sweep: corrected tool count (42) and tool tables in `README.md`/`CLAUDE.md`, documented the fork status and 1.x backward-compatibility policy, token persistence and `SKYLIGHT_STATE_FILE`, the release-to-npm process, and upstream-maintenance triage. `AGENTS.md` now points to `CLAUDE.md` to avoid duplicate drift. Added `SKYLIGHT_STATE_FILE` to `.env.example`.
+
 ## [1.2.0] - 2026-06-27
 
 First release of the fork, published to npm as `@fergbrain/skylight-mcp`. The
