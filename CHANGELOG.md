@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `delete_chore` (and any endpoint returning an empty 2xx body) no longer fails with "Unexpected end of JSON input". `SkylightClient.request()` now reads the response as text and treats an empty body as no content instead of always calling `response.json()` ([#3](https://github.com/fergbrain/skylight-mcp/issues/3)).
+
 ### Changed
 
 - Documentation accuracy sweep: corrected tool count (42) and tool tables in `README.md`/`CLAUDE.md`, documented the fork status and 1.x backward-compatibility policy, token persistence and `SKYLIGHT_STATE_FILE`, the release-to-npm process, and upstream-maintenance triage. `AGENTS.md` now points to `CLAUDE.md` to avoid duplicate drift. Added `SKYLIGHT_STATE_FILE` to `.env.example`.

@@ -316,7 +316,14 @@ export class SkylightClient {
       return {} as T;
     }
 
-    return response.json() as Promise<T>;
+    // Some endpoints (notably DELETE) return an empty body with a 2xx status.
+    // Calling response.json() on an empty body throws "Unexpected end of JSON
+    // input", so read as text first and treat an empty body as no content.
+    const text = await response.text();
+    if (!text || text.trim() === "") {
+      return {} as T;
+    }
+    return JSON.parse(text) as T;
   }
 
   /**
